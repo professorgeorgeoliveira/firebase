@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.0.3/firebase.js"></script>
+		<script>
+		  // Initialize Firebase
+		  var config = {
+		    apiKey: "AIzaSyDiGXNji2dDcTEvPuEHicOKqhirPesEH7k",
+		    authDomain: "projetofirebase-6e313.firebaseapp.com",
+		    databaseURL: "https://projetofirebase-6e313.firebaseio.com",
+		    projectId: "projetofirebase-6e313",
+		    storageBucket: "projetofirebase-6e313.appspot.com",
+		    messagingSenderId: "789391353514"
+		  };
+		  firebase.initializeApp(config);
+
+            function login() {
+                var usuario = document.getElementById("idusuario").value;
+                var senha = document.getElementById("idsenha").value;
+                firebase.auth().signInWithEmailAndPassword(usuario, senha).catch(function (error) {
+                    // Handle Errors here.
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    alert("Erro: " + errorMessage);
+                });
+
+            }
+            function logout() {
+                firebase.auth().signOut().then(function () {
+                    // Sign-out successful.
+                    alert("deslogado com sucesso");
+                }).catch(function (error) {
+                    // An error happened.
+                    alert("erro: " + error);
+                });
+
+            }
+
+            function perfil() {
+                var usuario = firebase.auth().currentUser;
+
+                if (usuario != null) {  //usuario logado
+                    alert("email: " + usuario.email + " - uid " + usuario.uid); 
+                }else{                  //usuario deslogado
+                    alert("aparentemente você não esta logado");
+                }
+            }
+
+            function criarDado() {
+                var nome = document.getElementById("idnome").value;
+                var idade = document.getElementById("ididade").value;
+                console.log("chave " + nome + " - valor: " + idade);
+                var data = {
+                    nome: nome,
+                    idade: idade
+                };
+
+                return firebase.database().ref().child('meusdados').push(data);
+            }
+
+            var usersList = document.getElementById('listaDeUsuarios');
+            firebase.database().ref('projetofirebase-6e313').on('value', function (snapshot) {
+                listaDeUsuarios.innerHTML = '';
+                snapshot.forEach(function (item) {
+                    var li = document.createElement('li');
+                    li.appendChild(document.createTextNode(item.val().teste + ': '));
+                    listaDeUsuarios.appendChild(li);
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <h3>Autenticar por email FireBase</h3>
+        <div >
+            <form>
+                <div >
+                    <label for="nameInput">Usuario</label>
+                    <input type="text" id="idusuario" value="fulano@gmail.com">
+                </div>
+                <div>
+                    <label for="ageInput">Senha</label>
+                    <input type="password" id="idsenha" value="123456">
+                </div>
+            </form>
+            <button id="addButton1" onclick="login()">Entrar</button> <br/>
+            <button id="addButton3" onclick="perfil()">Perfil</button>
+            <button id="addButton5" onclick="logout()">Sair</button>
+            <hr>
+            
+            <h3>Inserir e listar dados</h3>
+            <form>
+                <div >
+                    <label> Nome</label>
+                    <input type="text" id="idnome" >
+                </div>
+                <div>
+                    <label> Idade</label>
+                    <input type="number" id="ididade">
+                </div>
+            </form>
+            <button id="addButton4" onclick="criarDado()">Inserir Dados</button>
+            <ul id="listaDeUsuarios"></ul>
+
+        </div>
+    </body>
+</html>
+

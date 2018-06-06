@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://www.gstatic.com/firebasejs/5.0.2/firebase.js"></script>
+        <script>
+            // Initialize Firebase
+            var config = {
+                apiKey: "AIzaSyACLc2hBsrNj4au3QCzwSpTdGkXObmkLcA",
+                authDomain: "projetoifrr.firebaseapp.com",
+                databaseURL: "https://projetoifrr.firebaseio.com",
+                projectId: "projetoifrr",
+                storageBucket: "projetoifrr.appspot.com",
+                messagingSenderId: "835533598920"
+            };
+            firebase.initializeApp(config);
+
+            function cadastrarUsuario() {
+                var usuario = document.getElementById("idusuario").value;
+                var senha = document.getElementById("idsenha").value;
+                firebase.auth().createUserWithEmailAndPassword(usuario, senha).catch(function (error) {
+                    // Lidar com os Erros aqui.
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    alert("Erro: " + errorMessage);
+                });
+
+            }
+            
+            function testaSessao() {
+                firebase.auth().onAuthStateChanged(function (user) {
+                    if (user) {
+                        // Usuário logado.
+                        var usuario = firebase.auth().currentUser;
+                        alert("usuario logado com sucesso: " + usuario.email);
+                    } else {
+                    	// Usuário deslogado.
+                        alert("usuario não está deslogado");
+                    }
+                });
+            }
+            
+            function login() {
+                var usuario = document.getElementById("idusuario").value;
+                var senha = document.getElementById("idsenha").value;
+                firebase.auth().signInWithEmailAndPassword(usuario, senha).catch(function (error) {
+                    // Handle Errors here.
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    alert("Erro: " + errorMessage);
+                });
+
+            }
+            function logout() {
+                firebase.auth().signOut().then(function () {
+                    // Sign-out successful.
+                    alert("deslogado com sucesso");
+                }).catch(function (error) {
+                    // An error happened.
+                    alert("erro: " + error);
+                });
+
+            }
+
+            function perfil() {
+                var usuario = firebase.auth().currentUser;
+
+                if (usuario != null) {
+                    alert("email: " + usuario.email + " - uid " + usuario.uid);
+                }else{
+                    alert("aparentemente você não esta logado");
+                }
+            }
+            function criarDado() {
+                var nome = document.getElementById("idnome").value;
+                var idade = document.getElementById("ididade").value;
+                console.log("chave " + nome + " - valor: " + idade);
+                var data = {
+                    nome: nome,
+                    idade: idade
+                };
+
+                return firebase.database().ref().child('meusdados').push(data);
+            }
+            var usersList = document.getElementById('listaDeUsuarios');
+            firebase.database().ref('meusdados').on('value', function (snapshot) {
+                listaDeUsuarios.innerHTML = '';
+                snapshot.forEach(function (item) {
+                    var li = document.createElement('li');
+                    li.appendChild(document.createTextNode(item.val().nome + ': ' + item.val().idade));
+                    listaDeUsuarios.appendChild(li);
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <h3>Autenticar por email FireBase</h3>
+        <div >
+            <form>
+                <div >
+                    <label for="nameInput">Usuario</label>
+                    <input type="text" id="idusuario" value="fulano@gmail.com">
+                </div>
+                <div>
+                    <label for="ageInput">Senha</label>
+                    <input type="password" id="idsenha" value="123456">
+                </div>
+            </form>
+            <button id="addButton1" onclick="login()">Entrar</button> <br/>
+            <!--<button id="addButton2" onclick="testaSessao()">Testa Sessao</button> <br />-->
+            <button id="addButton3" onclick="perfil()">Perfil</button>
+            <button id="addButton5" onclick="logout()">Sair</button>
+            <hr>
+            
+            <h3>Inserir e listar dados</h3>
+            <form>
+                <div >
+                    <label for="nameInput">Nome</label>
+                    <input type="text" id="idnome" >
+                </div>
+                <div>
+                    <label for="ageInput">Idade</label>
+                    <input type="password" id="ididade">
+                </div>
+            </form>
+            <button id="addButton4" onclick="criarDado()">Inserir Dados</button>
+            <ul id="listaDeUsuarios"></ul>
+
+        </div>
+    </body>
+</html>
+
